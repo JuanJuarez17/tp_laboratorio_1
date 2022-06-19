@@ -76,7 +76,7 @@ int validarCharVOpc(char *pEvaluar, char opcion1, char opcion2) // FUNCION VALID
 int validarFloat(int limInferior, int *pValid, float *evaluar, char *pOpcionVuelo) // FUNCION VALIDAR FLOAT VUELO
 {
 	int ret = 0;
-	while (*pValid == 0 || *evaluar < limInferior) {
+	while (*pValid == 0 || *evaluar <= limInferior) {
 		printf("Error! Ingrese el costo del viaje en pesos ($) de %c: ",
 				*pOpcionVuelo);
 		fflush(stdin);
