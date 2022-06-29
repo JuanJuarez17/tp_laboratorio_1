@@ -9,7 +9,7 @@
 
 int menu_main(){
     int option;
-
+    int sOption;
     system("cls");
     printf("1 - CARGAR LOS DATOS DE LOS PASAJEROS DESDE ARCHIVO data.csv (MODO TEXTO).\n");
     printf("2 - CARGAR LOS DATOS DE LOS PASAJEROS DESDE ARCHIVO data.bin (MODO BINARIO).\n");
@@ -23,14 +23,16 @@ int menu_main(){
     printf("10 - SALIR.\n\n");
     printf("Ingrese opcion: ");
     fflush(stdin);
-    scanf("%d", &option);
-
+    sOption = scanf("%d", &option);
+    if(!sOption){
+    	option = 11;
+    }
     return option;
 }
 
 int menu_sort(){
     int option;
-
+    int sOption;
     system("cls");
     printf("1 - ORDENAR PASAJEROS POR ID.\n");
     printf("2 - ORDENAR PASAJEROS POR NOMBRE.\n");
@@ -38,17 +40,18 @@ int menu_sort(){
     printf("4 - ORDENAR PASAJEROS POR TIPO DE PASAJERO.\n");
     printf("5 - ORDENAR PASAJEROS POR CODIGO DE VUELO.\n");
     printf("6 - ORDENAR PASAJEROS POR ESTADO DE VUELO.\n");
-    printf("7 - SALIR.\n\n");
     printf("Ingrese opcion: ");
     fflush(stdin);
-    scanf("%d", &option);
-
+    sOption = scanf("%d", &option);
+    if(!sOption){
+    	option = 7;
+    }
     return option;
 }
 
 int menu_edit(){
     int option;
-
+    int sOption;
     system("cls");
     printf("1 - EDITAR NOMBRE.\n");
     printf("2 - EDITAR APELLIDO.\n");
@@ -57,7 +60,9 @@ int menu_edit(){
     printf("5 - EDITAR CODIGO DE VUELO.\n");
     printf("Ingrese opcion: ");
     fflush(stdin);
-    scanf("%d", &option);
-
+    sOption = scanf("%d", &option);
+    if(!sOption){
+    	option = 6;
+    }
     return option;
 }

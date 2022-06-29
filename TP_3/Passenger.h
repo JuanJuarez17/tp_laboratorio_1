@@ -21,8 +21,8 @@
 
 typedef struct{
 	int id;
-	char name[50];
-	char lastName[50];
+	char name[PASSENGER_NAME_LEN_MAX];
+	char lastName[PASSENGER_NAME_LEN_MAX];
 	float price;
 	char flyCode[5];
 	int typePassenger;
@@ -149,13 +149,13 @@ int Passenger_getStatusFly(sPassenger* this, int* statusFly);
 ///
 /// @param typePassenger
 /// @return
-int Passenger_typePassengerToInt(char* typePassenger);
+int Passenger_setTypePassengerToInt(char* typePassenger);
 
 /// @brief
 ///
 /// @param statusFly
 /// @return
-int Passenger_statusFlightToInt(char* statusFly);
+int Passenger_setStatusFlightToInt(char* statusFly);
 
 /// @brief
 ///

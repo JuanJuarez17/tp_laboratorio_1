@@ -1,3 +1,4 @@
+id,name,lastname,price,flycode,typePassenger,statusFlight
 1,Lou,Gonzalez,10000,BA24,FirstClass,Aterrizado
 2,Ulrike,Munioz,25000,IB08,FirstClass,Aterrizado
 3,Brade,Rojas,20000,MM09,FirstClass,En Horario

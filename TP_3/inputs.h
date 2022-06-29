@@ -12,7 +12,7 @@
 
 #endif /* INPUTS_H_ */
 
-int input_validateChar(char cEvaluate, char option1, char option2);
+int input_validateCharOpt(char cEvaluate, char option1, char option2);
 int input_validateIntRange(int sEvaluate, int iEvaluate, int lowLim, int HigLim);
 int input_getPassengerType(int* pType);
 int input_getPassengerFlyCode(char* pFlyCode);
@@ -27,9 +27,8 @@ int input_getPassengerStatusFly(char* flyCode, int* pStatusFly);
 * \param reintentos int* Puntero a la cantidad de reintentos para ingresar el string solicitado
 * \return int Return (-1) si Error [tamaño invalido o NULL pointer] - (0) si Ok
 */
-int utn_getString(char *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int intentos);
-int validarLetra (char letras[]);
-int validarNumero (char numeros[]);
+int input_getString(char *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int intentos);
+int input_validateLetter(char letras[]);
 
 /** \brief Solicita el ingreso de un int y valida su tamaño
 * \param resultado int* Puntero a la variable donde se almacena el int ingresado
@@ -40,8 +39,7 @@ int validarNumero (char numeros[]);
 * \param reintentos int* Puntero a la cantidad de reintentos para ingresar el string solicitado
 * \return int Return (-1) si Error [tamaño invalido o NULL pointer] - (0) si Ok
 */
-int utn_getInt(int *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int reintentos);
-int isValidInt(int numero, int maximo, int minimo);
+int input_getInt(int *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int reintentos);
 
 /** \brief Solicita el ingreso de un float y valida su tamaño
 * \param resultado int* Puntero a la variable donde se almacena el int ingresado
@@ -52,8 +50,8 @@ int isValidInt(int numero, int maximo, int minimo);
 * \param reintentos int* Puntero a la cantidad de reintentos para ingresar el string solicitado
 * \return int Return (-1) si Error [tamaño invalido o NULL pointer] - (0) si Ok
 */
-int utn_getFloat(float *resultado, char *mensaje, char *mensajeError, float minimo, float maximo, int reintentos);
-int isValidFloat(float numero, float maximo, float minimo);
+int input_getFloat(float *resultado, char *mensaje, char *mensajeError, float minimo, float maximo, int reintentos);
+int input_validateFloatRange(int sEvaluate, float iEvaluate, float lowLim, float HigLim);
 
 /** \brief Solicita el ingreso de un char y valida su tamaño
 * \param resultado int* Puntero a la variable donde se almacena el int ingresado
@@ -64,5 +62,4 @@ int isValidFloat(float numero, float maximo, float minimo);
 * \param reintentos int* Puntero a la cantidad de reintentos para ingresar el string solicitado
 * \return int Return (-1) si Error [tamaño invalido o NULL pointer] - (0) si Ok
 */
-int getChar( char *resultado,char *mensaje, char *mensajeError, char minimo, char maximo, int reintentos);
-int isValidChar(char letra, char maximo, char minimo);
+int input_getResponse(char *message, char *errorMessage, char opt1, char opt2);

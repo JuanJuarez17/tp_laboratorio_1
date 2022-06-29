@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include "inputs.h"
 
-int input_validateChar(char cEvaluate, char option1, char option2){
+int input_validateCharOpt(char cEvaluate, char option1, char option2){
 	int rtn = 0;
         if(cEvaluate == option1 || cEvaluate == option2){
             rtn = 1;
@@ -37,21 +37,12 @@ int input_getPassengerType(int* pType){
 		printf("3: FirstClass): ");
 		fflush(stdin);
 		vType = scanf("%d", &auxType);
-
-		/*// INICIO DEBUG
-		printf("Debug: %d\n", *pType);
-		// FIN DEBUG*/
-
 		while(!(input_validateIntRange(vType, auxType, 1, 3))){
 			printf("Error! Ingrese tipo de pasajero: ");
 			fflush(stdin);
 			vType = scanf("%d", &auxType);
 		}
 		*pType = auxType;
-		/*// INICIO DEBUG
-		printf("Debug: %d\n", *pType);
-		// FIN DEBUG*/
-
         rtn = 1;
     }
     return rtn;
@@ -61,11 +52,6 @@ int input_getPassengerFlyCode(char* pFlyCode){
     int rtn = 0;
     int auxFlyCode;
     int vType;
-
-	/*// INICIO DEBUG
-	printf("Debug: %s\n", pFlyCode);
-	// FIN DEBUG*/
-
     if(pFlyCode){
 		printf("Ingrese codigo de vuelo: ");
 		printf("(1: BA24 - ");
@@ -110,10 +96,6 @@ int input_getPassengerFlyCode(char* pFlyCode){
 				break;
 		}
         rtn = 1;
-
-    	/*// INICIO DEBUG
-    	printf("Debug: %s\n", pFlyCode);
-    	// FIN DEBUG*/
     }
     return rtn;
 }
@@ -144,7 +126,7 @@ int input_getPassengerStatusFly(char* flyCode, int* pStatusFly){
     return rtn;
 }
 
-int utn_getString(char *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int intentos)
+int input_getString(char *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int intentos)
 {
     int ret=0;
     char arrayAuxiliar[maximo];
@@ -155,7 +137,7 @@ int utn_getString(char *resultado, char *mensaje, char *mensajeError, int minimo
         //__fpurge(stdin); //LIMPIA BUFFER LINUX
         fgets(arrayAuxiliar,sizeof(arrayAuxiliar),stdin);
         arrayAuxiliar[strlen(arrayAuxiliar)-1] = '\0';
-        if( resultado != NULL && strlen(arrayAuxiliar) >= minimo && strlen(arrayAuxiliar) <= maximo && validarLetra(arrayAuxiliar)==0)
+        if( resultado != NULL && strlen(arrayAuxiliar) >= minimo && strlen(arrayAuxiliar) <= maximo && input_validateLetter(arrayAuxiliar)==0)
         {
         	arrayAuxiliar[0] = toupper(arrayAuxiliar[0]);
             strncpy(resultado,arrayAuxiliar,maximo);
@@ -171,7 +153,7 @@ int utn_getString(char *resultado, char *mensaje, char *mensajeError, int minimo
     return ret;
 }
 
-int validarLetra (char letras[])
+int input_validateLetter (char letras[])
 {
     int ret=0;
     int i=0;
@@ -191,19 +173,20 @@ int validarLetra (char letras[])
     return ret;
 }
 
-int utn_getInt(int *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int reintentos)
+int input_getInt(int *resultado, char *mensaje, char *mensajeError, int minimo, int maximo, int reintentos)
 {
     int retorno = 0;
     int i;
     int buffer;
-
+    int sBuffer;
     if(mensaje != NULL && mensajeError != NULL && resultado != NULL && maximo >= minimo && reintentos>=0)
     {
         for(i=0; i<=reintentos; i++)
         {
             printf("%s", mensaje);
-            scanf("%d",&buffer);
-            if(isValidInt(buffer, maximo, minimo))
+            sBuffer = scanf("%d", &buffer);
+            fflush(stdin);
+            if(input_validateIntRange(sBuffer, buffer, minimo, maximo))
             {
                 *resultado = buffer;
                 retorno = 1;
@@ -218,48 +201,20 @@ int utn_getInt(int *resultado, char *mensaje, char *mensajeError, int minimo, in
     return retorno;
 }
 
-int isValidInt(int numero, int maximo, int minimo)
-{
-    int ret = 0;
-    if(numero<=maximo && numero>=minimo)
-    {
-        ret = 1;
-    }
-    return ret;
-}
-
-int validarNumero (char numeros[])
-{
-    int ret=0;
-    int i=0;
-    int CantidadNumeros;
-    CantidadNumeros=strlen(numeros);
-    while (i<CantidadNumeros && ret==0)
-    {
-        if (isdigit(numeros[i])!=0)
-        {
-            i++;
-        }
-        else
-        {
-            ret=1;
-        }
-    }
-    return ret;
-}
-
-int utn_getFloat(float *resultado, char *mensaje, char *mensajeError, float minimo, float maximo, int reintentos)
+int input_getFloat(float *resultado, char *mensaje, char *mensajeError, float minimo, float maximo, int reintentos)
 {
     int retorno = 0;
     float buffer;
+    int sBuffer;
 
     if(mensaje!= NULL && mensajeError != NULL && resultado != NULL && minimo<=maximo && reintentos>=0)
     {
         do
         {
             printf("%s", mensaje);
-            scanf("%f",&buffer);
-            if(isValidFloat(buffer, maximo, minimo))
+            sBuffer = scanf("%f",&buffer);
+            fflush(stdin);
+            if(input_validateFloatRange(sBuffer, buffer, minimo, maximo))
             {
                 *resultado = buffer;
                 retorno = 1;
@@ -276,51 +231,29 @@ int utn_getFloat(float *resultado, char *mensaje, char *mensajeError, float mini
     return retorno;
 }
 
-int isValidFloat(float numero, float maximo, float minimo)
-{
-    int ret = 0;
-    if(numero<=maximo && numero>=minimo)
-    {
-        ret = 1;
-    }
-    return ret;
-}
-
-int utn_getChar( char *resultado,char *mensaje, char *mensajeError, char minimo, char maximo, int reintentos)
-{
-    int retorno = 0;
-    char buffer;
-    if(mensaje != NULL && mensajeError != NULL && resultado != NULL && reintentos>=0)
-    {
-        do
-        {
-            printf("%s", mensaje);
-            fflush( stdin ); //LIMPIA BUFFER WINDOWS
-            //__fpurge(stdin); //LIMPIA BUFFER LINUX
-            scanf("%c", &buffer);
-            if(isValidChar(buffer, maximo, minimo))
-            {
-                *resultado = buffer;
-                retorno=1;
-                break;
-            }
-            else
-            {
-                printf("%s", mensajeError);
-            }
-            reintentos--;
+int input_validateFloatRange(int sEvaluate, float iEvaluate, float lowLim, float HigLim){
+    int rtn = 0;
+        if(sEvaluate == 1 && (iEvaluate >= lowLim && iEvaluate <= HigLim)){
+            rtn = 1;
         }
-        while(reintentos>=0);
-    }
-    return retorno;
+	return rtn;
 }
 
-int isValidChar(char letra, char maximo, char minimo)
-{
-    int ret = 0;
-    if(letra<=maximo && letra>=minimo)
-    {
-        ret = 1;
-    }
-    return ret;
+int input_getResponse(char *message, char *errorMessage, char opt1, char opt2){
+	int rtn = 0;
+	char confirm;
+	printf(message); // Pido confirmar
+	fflush(stdin); // Siempre que recibamos un char
+	scanf("%c", &confirm); // Recibo respuesta
+	confirm = toupper(confirm);
+	while(!(input_validateCharOpt(confirm, opt1, opt2))){
+		printf(errorMessage);
+		fflush(stdin);
+		scanf("%c", &confirm);
+		confirm = toupper(confirm);
+	}
+	if(confirm == opt1){ // Valido que sea sea afirmativo
+		rtn = 1; // Retorno 1 para ser utilziado en otra funcion
+	}
+	return rtn;
 }

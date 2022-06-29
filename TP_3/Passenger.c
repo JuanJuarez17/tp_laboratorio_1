@@ -25,59 +25,19 @@ sPassenger* Passenger_new(){
 sPassenger* Passenger_newParameters(char* id, char* name, char* lastName, char* price, char* flyCode, char* typePassenger, char* statusFly){
 	sPassenger* rtnPassenger = Passenger_new();
 	sPassenger* auxPassenger = Passenger_new();
-
-	// INICIO DEBUG
-	//printf("%s %s %s %s %s %s %s\n", id, name, lastName, price, flyCode, typePassenger, statusFly);
-	// FIN DEBUG
-
-	// INICIO DEBUG
-	//printf("%d %s %s %.2f %s %d %d\n", auxPassenger->id, auxPassenger->name, auxPassenger->lastName, auxPassenger->price, auxPassenger->flyCode, auxPassenger->typePassenger, auxPassenger->statusFly);
-	// FIN DEBUG
-
 	if(auxPassenger != NULL && rtnPassenger != NULL && id != NULL && name != NULL && lastName != NULL && price != NULL && flyCode != NULL && typePassenger != NULL && statusFly != NULL){
-
-		// INICIO DEBUG
-		//printf("Entre auxpassenger != NULL\n");
-		// FIN DEBUG
-
-		// INICIO DEBUG
-		//printf("atoi variable: %d\n", atoi(id));
-		//printf("atoi prueba:%d\n", atoi("1"));
-		// FIN DEBUG
-
-		// INICIO DEBUG
-		/*printf("%d ", Passenger_setId(auxPassenger, atoi(id)));
-		printf("%d ", Passenger_setName(auxPassenger, name));
-		printf("%d ", Passenger_setlastName(auxPassenger, lastName));
-		printf("%d ", Passenger_setPrice(auxPassenger, atof(price)));
-		printf("%d ", Passenger_setFlyCode(auxPassenger, flyCode));
-		printf("%d ", Passenger_setTypePassenger(auxPassenger, Passenger_typePassengerToInt(typePassenger)));
-		printf("%d \n", Passenger_setStatusFly(auxPassenger, Passenger_statusFlightToInt(statusFly)));*/
-		// FIN DEBUG
-
 		if(Passenger_setId(auxPassenger, atoi(id))
 	    && Passenger_setName(auxPassenger, name)
 	    && Passenger_setlastName(auxPassenger, lastName)
 	    && Passenger_setPrice(auxPassenger, atof(price))
 	    && Passenger_setFlyCode(auxPassenger, flyCode)
-	    && Passenger_setTypePassenger(auxPassenger, Passenger_typePassengerToInt(typePassenger))
-	    && Passenger_setStatusFly(auxPassenger, Passenger_statusFlightToInt(statusFly))){
-
-			// INICIO DEBUG
-			//printf("Entre a los sets\n");
-			//printf("Salida new_pass: %d %s %s %.2f %s %d %d\n", auxPassenger->id, auxPassenger->name, auxPassenger->lastName, auxPassenger->price, auxPassenger->flyCode, auxPassenger->typePassenger, auxPassenger->statusFly);
-			// FIN DEBUG
-
+	    && Passenger_setTypePassenger(auxPassenger, Passenger_setTypePassengerToInt(typePassenger))
+	    && Passenger_setStatusFly(auxPassenger, Passenger_setStatusFlightToInt(statusFly))){
 			rtnPassenger = auxPassenger;
-			//Passenger_delete(auxPassenger);
 		}
 		else{
 			Passenger_delete(auxPassenger);
 		}
-
-		// INICIO DEBUG
-		//printf("%d %s %s %.2f %s %d %d\n", auxPassenger->id, auxPassenger->name, auxPassenger->lastName, auxPassenger->price, auxPassenger->flyCode, auxPassenger->typePassenger, auxPassenger->statusFly);
-		// FIN DEBUG
 	}
 	return rtnPassenger;
 }
@@ -219,7 +179,7 @@ int Passenger_getStatusFly(sPassenger* this, int* statusFly){
 	return rtn;
 }
 
-int Passenger_typePassengerToInt(char* typePassenger){
+int Passenger_setTypePassengerToInt(char* typePassenger){
 	int rtn = 0;
 	if(typePassenger != NULL){
 		if(strcmp(typePassenger, "EconomyClass") == 0){
@@ -235,7 +195,7 @@ int Passenger_typePassengerToInt(char* typePassenger){
 	return rtn;
 }
 
-int Passenger_statusFlightToInt(char* statusFly){
+int Passenger_setStatusFlightToInt(char* statusFly){
 	int rtn = 0;
 	if(statusFly != NULL){
 		if(strcmp(statusFly, "Aterrizado") == 0){
@@ -350,7 +310,6 @@ int Passenger_getNextId(LinkedList* pArrayListPassenger){
 					}
 				}
 			}
-
 		}
 		if(counter > 0){ // Si se conto algun pasajero dentro de ll
 			nextID++; // Uno mas que el ultimo que se encontro
@@ -390,11 +349,9 @@ int Passenger_print(sPassenger* this){
 	char flyCode[PASSENGER_FLYCODE_LEN_MAX];
 	int statusFly;
 	int typePassenger;
+	char typePassDesc[20];
+	char statusFlyDesc[20];
 	if(this != NULL){
-        printf("\n                                        - ELIMINAR PASAJERO -                                       \n");
-        printf("------------------------------------------------------------------------------------------------------\n");
-        printf(" ID    NOMBRE             APELLIDO            PRECIO         CLASE   CODIGO DE VUELO   ESTADO DE VUELO\n");
-        printf("------------------------------------------------------------------------------------------------------\n");
         if(Passenger_getId(this, &id)
 	   && Passenger_getName(this, name)
 	   && Passenger_getlastName(this, lastName)
@@ -402,14 +359,16 @@ int Passenger_print(sPassenger* this){
 	   && Passenger_getTypePassenger(this, &typePassenger)
 	   && Passenger_getFlyCode(this, flyCode)
 	   && Passenger_getStatusFly(this, &statusFly)){
-			printf("%4d   %-18s %-18s %8.2f   %10d        %6s            %10d\n",
+			Passenger_getStatusFlyDesc(statusFlyDesc, this->statusFly);
+			Passenger_getTypePassengerDesc(typePassDesc, this->typePassenger);
+			printf("%4d   %-18s %-18s %8.2f   %-15s     %6s             %10s\n",
 				   id,
 				   name,
 				   lastName,
 				   price,
-				   typePassenger,
+				   typePassDesc,
 				   flyCode,
-				   statusFly);
+				   statusFlyDesc);
 	        rtn = 1;
         }
 	}
@@ -437,7 +396,7 @@ int Passenger_getTypePassengerDesc(char* typePassDesc, int typePassenger){
 
 int Passenger_getStatusFlyDesc(char* statusFlyDesc, int statusFly){
     int rtn = 0;
-    if(statusFlyDesc != NULL && statusFly >= 1 && statusFly <= 3){
+    if(statusFlyDesc != NULL && statusFly >= 1 && statusFly <= 4){
         switch(statusFly){
             case 1:
                 strcpy(statusFlyDesc, "Aterrizado");

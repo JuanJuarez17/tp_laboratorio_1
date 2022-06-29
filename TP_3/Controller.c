@@ -11,7 +11,6 @@ int controller_loadFromText(char* path , LinkedList* pArrayListPassenger)
 {
 	int rtn = 0;
 	FILE* file = NULL;
-
 	if(path != NULL && pArrayListPassenger != NULL){
 		file = fopen(path, "r");
 		if(file != NULL){
@@ -30,11 +29,11 @@ int controller_loadFromText(char* path , LinkedList* pArrayListPassenger)
 int controller_loadFromBinary(char* path , LinkedList* pArrayListPassenger)
 {
 	int rtn = 0;
-	FILE* fileAux = NULL;
+	FILE* file = NULL;
 	if(path != NULL && pArrayListPassenger != NULL){
-		fileAux = fopen(path, "rb");
-		if(fileAux != NULL){
-			if(parser_PassengerFromBinary(fileAux, pArrayListPassenger)){
+		file = fopen(path, "rb");
+		if(file != NULL){
+			if(parser_PassengerFromBinary(file, pArrayListPassenger)){
 				printf("Carga de archivo exitosa.\n");
 				rtn = 1;
 			}
@@ -57,30 +56,15 @@ int controller_addPassenger(LinkedList* pArrayListPassenger)
 	char flyCode[PASSENGER_FLYCODE_LEN_MAX];
 	int status;
 	int type;
-	char confirm;
-
-	// INICIO DEBUG
-	//printf("Debug: %d\n", type);
-	// FIN DEBUG
-
 	if(pArrayListPassenger != NULL){
 		id = Passenger_getNextId(pArrayListPassenger);
 		if(id != 0){
-			if(utn_getString(name, "Ingrese nombre del pasajero: ", "Error! ", 1, 128, 3)
-			&& utn_getString(lastName, "Ingrese apellido del pasajero: ", "Error! ", 1, 128, 3)
-			&& utn_getFloat(&price, "Ingrese precio del pasaje: ", "Error! ", 10000, 50000, 3)
+			if(input_getString(name, "Ingrese nombre del pasajero: ", "Error! ", 1, 128, 3)
+			&& input_getString(lastName, "Ingrese apellido del pasajero: ", "Error! ", 1, 128, 3)
+			&& input_getFloat(&price, "Ingrese precio del pasaje: ", "Error! ", 10000, 50000, 3)
 			&& input_getPassengerFlyCode(flyCode)
 			&& input_getPassengerStatusFly(flyCode, &status)
 			&& input_getPassengerType(&type)){
-				/*// INICIO DEBUG
-				printf("Debug: %s\n", name);
-				printf("Debug: %s\n", lastName);
-				printf("Debug: %.2f\n", price);
-				printf("Debug: %d\n", type);
-				printf("Debug: %s\n", flyCode);
-				printf("Debug: %d\n", status);
-				system("pause");
-				// FIN DEBUG*/
 				Passenger_setId(auxPassenger, id);
 				Passenger_setName(auxPassenger, name);
 				Passenger_setlastName(auxPassenger, lastName);
@@ -88,32 +72,17 @@ int controller_addPassenger(LinkedList* pArrayListPassenger)
 				Passenger_setFlyCode(auxPassenger, flyCode);
 				Passenger_setStatusFly(auxPassenger, status);
 				Passenger_setTypePassenger(auxPassenger, type);
-				/*// INICIO DEBUG
-				printf("Debug: %s\n", auxPassenger->name);
-				printf("Debug: %s\n", auxPassenger->lastName);
-				printf("Debug: %.2f\n", auxPassenger->price);
-				printf("Debug: %d\n", auxPassenger->typePassenger);
-				printf("Debug: %s\n", auxPassenger->flyCode);
-				printf("Debug: %d\n", auxPassenger->statusFly);
-				// FIN DEBUG*/
 				if(auxPassenger != NULL){
+			        printf("\n---------------------------------------------------------------------------------------------------------\n");
+			        printf(" ID    NOMBRE             APELLIDO            PRECIO    CLASE           CODIGO DE VUELO   ESTADO DE VUELO\n");
+			        printf("---------------------------------------------------------------------------------------------------------\n");
 					Passenger_print(auxPassenger);
-					printf("\nConfirma alta? (S/N): "); // Pido confirmar
-					fflush(stdin); // Siempre que recibamos un char
-					scanf("%c", &confirm); // Recibo respuesta
-					confirm = toupper(confirm);
-					while(!(input_validateChar(confirm, 'S', 'N'))){
-						printf("Error! Confirma alta? (S/N): ");
-						fflush(stdin);
-						scanf("%c", &confirm);
-						confirm = toupper(confirm);
-					}
-					if(confirm == 'S'){ // Valido que sea sea afirmativo
+            		if(input_getResponse("\nConfirma alta? (S/N): ", "Error! Confirma alta? (S/N): ", 'S', 'N')){
 						ll_add(pArrayListPassenger, auxPassenger);
-						printf("Alta de pasajero exitosa.\n"); // Aviso del cambio
+						printf("Alta de pasajero exitosa.\n");
 						rtn = 1;
-					}
-					else{ // Si no es afirmativo
+            		}
+					else{
 						printf("Alta de pasajero cancelada.\n");
 					}
 				}
@@ -131,129 +100,88 @@ int controller_editPassenger(LinkedList* pArrayListPassenger)
 	int rtn = 0;
 	int id;
 	int index;
-	char confirm;
 	char name[PASSENGER_NAME_LEN_MAX];
 	char lastName[PASSENGER_NAME_LEN_MAX];
 	float price;
 	char flyCode[PASSENGER_FLYCODE_LEN_MAX];
 	int status;
 	int type;
+	int lastID;
 	sPassenger *auxPassenger = NULL;
 	if(pArrayListPassenger != NULL) {
-		if(utn_getInt(&id, "Ingrese ID del pasajero: ", "Error! ID incorrecto\n", 1, ll_len(pArrayListPassenger), 3)) {
+		lastID = Passenger_getNextId(pArrayListPassenger) - 1;
+		if(input_getInt(&id, "Ingrese ID del pasajero: ", "Error! ID incorrecto\n", 1, lastID, 3)) {
 			if(Passenger_findById(pArrayListPassenger, &index, id)) {
 				auxPassenger = (sPassenger*) ll_get(pArrayListPassenger, index);
 				if(auxPassenger != NULL) {
+			        printf("\n---------------------------------------------------------------------------------------------------------\n");
+			        printf(" ID    NOMBRE             APELLIDO            PRECIO    CLASE           CODIGO DE VUELO   ESTADO DE VUELO\n");
+			        printf("---------------------------------------------------------------------------------------------------------\n");
 					Passenger_print(auxPassenger);
 					switch(menu_edit()){
-					case 1:
-						utn_getString(name, "Ingrese nombre del pasajero: ", "Error!", 1, 128, 3);
-						printf("Confirma modificacion? (S/N): ");
-						fflush(stdin);
-						scanf("%c", &confirm);
-						confirm = toupper(confirm);
-						while(!(input_validateChar(confirm, 'S', 'N'))){
-							printf("Error! Confirma modificacion? (S/N): ");
-							fflush(stdin);
-							scanf("%c", &confirm);
-							confirm = toupper(confirm);
-						}
-						if(confirm == 'S'){
-							Passenger_setName(auxPassenger, name);
-							printf("Modificacion exitosa.\n");
-							rtn = 1;
-
-						}
-						else{
-							printf("Baja cancelada.\n");
-						}
-						break;
-					case 2:
-						utn_getString(lastName, "Ingrese apellido del pasajero: ", "Error!", 1, 128, 3);
-						printf("Confirma modificacion? (S/N): ");
-						fflush(stdin);
-						scanf("%c", &confirm);
-						confirm = toupper(confirm);
-						while(!(input_validateChar(confirm, 'S', 'N'))){
-							printf("Error! Confirma modificacion? (S/N): ");
-							fflush(stdin);
-							scanf("%c", &confirm);
-							confirm = toupper(confirm);
-						}
-						if(confirm == 'S'){
-							Passenger_setlastName(auxPassenger, lastName);
-							printf("Modificacion exitosa.\n");
-							rtn = 1;
-						}
-						else{
-							printf("Baja cancelada.\n");
-						}
-						break;
-					case 3:
-						utn_getFloat(&price, "Ingrese precio del pasaje: ", "Error. Ingrese precio del pasaje: ", 10000, 50000, 3);
-						printf("Confirma modificacion? (S/N): ");
-						fflush(stdin);
-						scanf("%c", &confirm);
-						confirm = toupper(confirm);
-						while(!(input_validateChar(confirm, 'S', 'N'))){
-							printf("Error! Confirma modificacion? (S/N): ");
-							fflush(stdin);
-							scanf("%c", &confirm);
-							confirm = toupper(confirm);
-						}
-						if(confirm == 'S'){
-							Passenger_setPrice(auxPassenger, price);
-							printf("Modificacion exitosa.\n");
-							rtn = 1;
-						}
-						else{
-							printf("Baja cancelada.\n");
-						}
-						break;
-					case 4:
-						input_getPassengerType(&type);
-						printf("Confirma modificacion? (S/N): ");
-						fflush(stdin);
-						scanf("%c", &confirm);
-						confirm = toupper(confirm);
-						while(!(input_validateChar(confirm, 'S', 'N'))){
-							printf("Error! Confirma modificacion? (S/N): ");
-							fflush(stdin);
-							scanf("%c", &confirm);
-							confirm = toupper(confirm);
-						}
-						if(confirm == 'S'){
-							Passenger_setTypePassenger(auxPassenger, type);
-							printf("Modificacion exitosa.\n");
-							rtn = 1;
-						}
-						else{
-							printf("Baja cancelada.\n");
-						}
-						break;
-					case 5:
-						input_getPassengerFlyCode(flyCode);
-						input_getPassengerStatusFly(flyCode, &status);
-						printf("Confirma modificacion? (S/N): ");
-						fflush(stdin);
-						scanf("%c", &confirm);
-						confirm = toupper(confirm);
-						while(!(input_validateChar(confirm, 'S', 'N'))){
-							printf("Error! Confirma modificacion? (S/N): ");
-							fflush(stdin);
-							scanf("%c", &confirm);
-							confirm = toupper(confirm);
-						}
-						if(confirm == 'S'){
-							Passenger_setFlyCode(auxPassenger, flyCode);
-							Passenger_setStatusFly(auxPassenger, status);
-							printf("Modificacion exitosa.\n");
-							rtn = 1;
-						}
-						else{
-							printf("Baja cancelada.\n");
-						}
-						break;
+						case 1:
+							input_getString(name, "Ingrese nombre del pasajero: ", "Error!", 1, 128, 3);
+							if(input_getResponse("Confirma modificacion? (S/N): ", "Error! Confirma modificacion? (S/N): ", 'S', 'N')){
+								Passenger_setName(auxPassenger, name);
+								printf("Modificacion exitosa.\n");
+								rtn = 1;
+							}
+							else{
+								printf("Modificacion cancelada.\n");
+							}
+							break;
+						case 2:
+							input_getString(lastName, "Ingrese apellido del pasajero: ", "Error!", 1, 128, 3);
+							if(input_getResponse("Confirma modificacion? (S/N): ", "Error! Confirma modificacion? (S/N): ", 'S', 'N')){
+								Passenger_setlastName(auxPassenger, lastName);
+								printf("Modificacion exitosa.\n");
+								rtn = 1;
+							}
+							else{
+								printf("Modificacion cancelada.\n");
+							}
+							break;
+						case 3:
+							input_getFloat(&price, "Ingrese precio del pasaje: ", "Error. Ingrese precio del pasaje: ", 10000, 50000, 3);
+							if(input_getResponse("Confirma modificacion? (S/N): ", "Error! Confirma modificacion? (S/N): ", 'S', 'N')){
+								Passenger_setPrice(auxPassenger, price);
+								printf("Modificacion exitosa.\n");
+								rtn = 1;
+							}
+							else{
+								printf("Modificacion cancelada.\n");
+							}
+							break;
+						case 4:
+							input_getPassengerType(&type);
+							if(input_getResponse("Confirma modificacion? (S/N): ", "Error! Confirma modificacion? (S/N): ", 'S', 'N')){
+								Passenger_setTypePassenger(auxPassenger, type);
+								printf("Modificacion exitosa.\n");
+								rtn = 1;
+							}
+							else{
+								printf("Modificacion cancelada.\n");
+							}
+							break;
+						case 5:
+							input_getPassengerFlyCode(flyCode);
+							input_getPassengerStatusFly(flyCode, &status);
+							if(input_getResponse("Confirma modificacion? (S/N): ", "Error! Confirma modificacion? (S/N): ", 'S', 'N')){
+								Passenger_setFlyCode(auxPassenger, flyCode);
+								Passenger_setStatusFly(auxPassenger, status);
+								printf("Modificacion exitosa.\n");
+								rtn = 1;
+							}
+							else{
+								printf("Modificacion cancelada.\n");
+							}
+							break;
+						case 6:
+							printf("Error! Ingrese un numero.\n");
+							break;
+						default:
+							printf("Opcion invalida!\n");
+							break;
 					}
 				}
 			}
@@ -273,43 +201,33 @@ int controller_removePassenger(LinkedList *pArrayListPassenger)
 	int rtn = 0;
 	int id;
 	int index;
-	char confirm;
+	int lastID;
 	sPassenger *auxPassenger = NULL;
 	if(pArrayListPassenger != NULL) {
-		if(utn_getInt(&id, "Ingrese ID del pasajero: ", "Error! ID incorrecto\n", 1, ll_len(pArrayListPassenger), 3)) {
+		lastID = Passenger_getNextId(pArrayListPassenger) - 1;
+		if(input_getInt(&id, "Ingrese ID del pasajero: ", "Error! ID incorrecto\n", 1, lastID, 3)) {
 			if(Passenger_findById(pArrayListPassenger, &index, id)) {
 				auxPassenger = (sPassenger*) ll_get(pArrayListPassenger, index);
 				if(auxPassenger != NULL) {
+			        printf("\n---------------------------------------------------------------------------------------------------------\n");
+			        printf(" ID    NOMBRE             APELLIDO            PRECIO    CLASE           CODIGO DE VUELO   ESTADO DE VUELO\n");
+			        printf("---------------------------------------------------------------------------------------------------------\n");
 					Passenger_print(auxPassenger);
-					printf("\nConfirma baja? (S/N): "); // Pido confirmar
-					fflush(stdin); // Siempre que recibamos un char
-					scanf("%c", &confirm); // Recibo respuesta
-					confirm = toupper(confirm);
-					while(!(input_validateChar(confirm, 'S', 'N'))) {
-						printf("Error! Confirma baja? (S/N): ");
-						fflush(stdin);
-						scanf("%c", &confirm);
-						confirm = toupper(confirm);
-					}
-					if(confirm == 'S') { // Valido que sea sea afirmativo
-						if(ll_pop(pArrayListPassenger, index)) {
-							printf("Baja exitosa.\n"); // Aviso del cambio
+            		if(input_getResponse("\nConfirma baja? (S/N): ", "Error! Confirma baja? (S/N): ", 'S', 'N')){
+    					if(ll_pop(pArrayListPassenger, index)) {
+							printf("Baja exitosa.\n");
 							Passenger_delete(auxPassenger);
 							rtn = 1;
 						}
-					}
-					else
-					{ // Si no es afirmativo
+            		}
+					else{
 						printf("Baja cancelada.\n");
 					}
 				}
 			}
-			else {
-				printf("Error! No se encontro el ID.\n");
+			else{
+				printf("El pasajero ya ha sido eliminado.\n");
 			}
-		}
-		else {
-			printf("Error! No existe esa cantidad de pasajeros.\n");
 		}
 	}
 	return rtn;
@@ -318,38 +236,16 @@ int controller_removePassenger(LinkedList *pArrayListPassenger)
 int controller_listPassenger(LinkedList* pArrayListPassenger)
 {
 	int rtn = 0;
-	int id;
-	char name[PASSENGER_NAME_LEN_MAX];
-	char lastName[PASSENGER_NAME_LEN_MAX];
-	float price;
-	int statusFly;
-	char flyCode[5];
-	int typePassenger;
 	sPassenger* auxPassenger;
 	if(pArrayListPassenger != NULL){
-        printf("\n                                       - LISTA DE PASAJEROS -                                      \n");
-        printf("------------------------------------------------------------------------------------------------------\n");
-        printf(" ID    NOMBRE             APELLIDO            PRECIO         CLASE   CODIGO DE VUELO   ESTADO DE VUELO\n");
-        printf("------------------------------------------------------------------------------------------------------\n");
+        printf("\n                                         - LISTA DE PASAJEROS -                                        \n");
+        printf("---------------------------------------------------------------------------------------------------------\n");
+        printf(" ID    NOMBRE             APELLIDO            PRECIO    CLASE           CODIGO DE VUELO   ESTADO DE VUELO\n");
+        printf("---------------------------------------------------------------------------------------------------------\n");
         for(int i = 0; i < ll_len(pArrayListPassenger); i++){
         	auxPassenger = (sPassenger*) ll_get(pArrayListPassenger, i);
         	if(auxPassenger != NULL){
-          		if(Passenger_getId(auxPassenger, &id)
-            	       && Passenger_getName(auxPassenger, name)
-    				   && Passenger_getlastName(auxPassenger, lastName)
-    				   && Passenger_getPrice(auxPassenger, &price)
-    				   && Passenger_getTypePassenger(auxPassenger, &typePassenger)
-    				   && Passenger_getFlyCode(auxPassenger, flyCode)
-    				   && Passenger_getStatusFly(auxPassenger, &statusFly)){
-                	    printf("%4d   %-18s %-18s %8.2f   %10d        %6s            %10d\n",
-                	           id,
-        					   name,
-        					   lastName,
-        					   price,
-        					   typePassenger,
-        					   flyCode,
-        					   statusFly);
-        		}
+        		Passenger_print(auxPassenger);
         	    rtn = 1;
         	}
 		}
@@ -360,86 +256,53 @@ int controller_listPassenger(LinkedList* pArrayListPassenger)
 int controller_sortPassenger(LinkedList* pArrayListPassenger)
 {
 	int rtn = 0;
-	char exit = 'N';
 	int crit;
-	int sCrit;
 	if(pArrayListPassenger != NULL){
             switch(menu_sort()){
                 case 1:
-                    printf("Ingrese criterio de ordenamiento (1: Ascendente - 0: Descendente): ");
-                    fflush(stdin);
-                    sCrit = scanf("%d", &crit);
-                    while(!(input_validateIntRange(sCrit, crit, 0, 1))){
-                        printf("Error! criterio de ordenamiento (1: Ascendente - 0: Descendente): ");
-                        fflush(stdin);
-                        sCrit = scanf("%d", &crit);
-                    }
-                    ll_sort(pArrayListPassenger, Passenger_compareById, crit);
+                	if(input_getInt(&crit, "Ingrese criterio de ordenamiento (1: Ascendente - 0: Descendente): ", "Error!\n", 0, 1, 3)) {
+                		ll_sort(pArrayListPassenger, Passenger_compareById, crit);
+						printf("Elija la opcion 6 para listar los pasajeros.\n");
+                	}
                     break;
                 case 2:
-                    printf("Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ");
-                    fflush(stdin);
-                    sCrit = scanf("%d", &crit);
-                    while(!(input_validateIntRange(sCrit, crit, 0, 1))){
-                        printf("Error! criterio de ordenamiento (1: A-Z - 0: Z-A): ");
-                        fflush(stdin);
-                        sCrit = scanf("%d", &crit);
-                    }
-                    ll_sort(pArrayListPassenger, Passenger_compareByName, crit);
+                	if(input_getInt(&crit, "Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ", "Error!\n", 0, 1, 3)) {
+                		ll_sort(pArrayListPassenger, Passenger_compareByName, crit);
+						printf("Elija la opcion 6 para listar los pasajeros.\n");
+                	}
                     break;
                 case 3:
-                    printf("Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ");
-                    fflush(stdin);
-                    sCrit = scanf("%d", &crit);
-                    while(!(input_validateIntRange(sCrit, crit, 0, 1))){
-                        printf("Error! criterio de ordenamiento (1: A-Z - 0: Z-A): ");
-                        fflush(stdin);
-                        sCrit = scanf("%d", &crit);
-                    }
-                    ll_sort(pArrayListPassenger, Passenger_compareByLastName, crit);
+                	if(input_getInt(&crit, "Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ", "Error!\n", 0, 1, 3)) {
+                		ll_sort(pArrayListPassenger, Passenger_compareByLastName, crit);
+						printf("Elija la opcion 6 para listar los pasajeros.\n");
+                	}
                     break;
                 case 4:
-                    printf("Ingrese criterio de ordenamiento (1: Ascendente - 0: Descendente): ");
-                    fflush(stdin);
-                    sCrit = scanf("%d", &crit);
-                    while(!(input_validateIntRange(sCrit, crit, 0, 1))){
-                        printf("Error! criterio de ordenamiento (1: Ascendente - 0: Descendente): ");
-                        fflush(stdin);
-                        sCrit = scanf("%d", &crit);
-                    }
-                    ll_sort(pArrayListPassenger, Passenger_compareByTypePassenger, crit);
+                	if(input_getInt(&crit, "Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ", "Error!\n", 0, 1, 3)) {
+                		ll_sort(pArrayListPassenger, Passenger_compareByTypePassenger, crit);
+						printf("Elija la opcion 6 para listar los pasajeros.\n");
+                	}
                     break;
                 case 5:
-                    printf("Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ");
-                    fflush(stdin);
-                    sCrit = scanf("%d", &crit);
-                    while(!(input_validateIntRange(sCrit, crit, 0, 1))){
-                        printf("Error! criterio de ordenamiento (1: A-Z - 0: Z-A): ");
-                        fflush(stdin);
-                        sCrit = scanf("%d", &crit);
-                    }
-                    ll_sort(pArrayListPassenger, Passenger_compareByFlyCode, crit);
+                	if(input_getInt(&crit, "Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ", "Error!\n", 0, 1, 3)) {
+                		ll_sort(pArrayListPassenger, Passenger_compareByFlyCode, crit);
+						printf("Elija la opcion 6 para listar los pasajeros.\n");
+                	}
                     break;
                 case 6:
-                    printf("Ingrese criterio de ordenamiento (1: Ascendente - 0: Descendente): ");
-                    fflush(stdin);
-                    sCrit = scanf("%d", &crit);
-                    while(!(input_validateIntRange(sCrit, crit, 0, 1))){
-                        printf("Error! criterio de ordenamiento (1: Ascendente - 0: Descendente): ");
-                        fflush(stdin);
-                        sCrit = scanf("%d", &crit);
-                    }
-                    ll_sort(pArrayListPassenger, Passenger_compareByStatusFly, crit);
+                	if(input_getInt(&crit, "Ingrese criterio de ordenamiento (1: A-Z - 0: Z-A): ", "Error!\n", 0, 1, 3)) {
+                		ll_sort(pArrayListPassenger, Passenger_compareByStatusFly, crit);
+						printf("Elija la opcion 6 para listar los pasajeros.\n");
+                	}
                     break;
                 case 7:
-                	controller_exitProgram(&exit);
+                	printf("Error! Ingrese un numero.\n");
                     break;
                 default:
                     printf("Opcion invalida!.\n");
                     break;
             }
             rtn = 1;
-            printf("Elija la opcion 6 para listar los pasajeros.\n");
             system("pause");
 	}
     return rtn;
@@ -450,6 +313,8 @@ int controller_saveAsText(char* path , LinkedList* pArrayListPassenger)
 	int rtn = 0;
 	FILE* auxFile = NULL;
 	sPassenger* auxPassenger = NULL;
+	char typePassDesc[15];
+	char statusFlyDesc[15];
 	if(path != NULL && pArrayListPassenger != NULL){
 		auxFile = fopen(path, "w");
 		if(auxFile != NULL){
@@ -457,14 +322,18 @@ int controller_saveAsText(char* path , LinkedList* pArrayListPassenger)
 			for(int i = 0; i < ll_len(pArrayListPassenger); i++){
 				auxPassenger = (sPassenger*) ll_get(pArrayListPassenger, i);
 				if(auxPassenger != NULL){
-					fprintf(auxFile, "%d,%s,%s,%f,%s,%d,%d\n",
+					Passenger_getStatusFlyDesc(statusFlyDesc, auxPassenger->statusFly);
+					Passenger_getTypePassengerDesc(typePassDesc, auxPassenger->typePassenger);
+					fprintf(auxFile, "%d,%s,%s,%f,%s,%s,%s\n",
 							auxPassenger->id,
 							auxPassenger->name,
 							auxPassenger->lastName,
 							auxPassenger->price,
 							auxPassenger->flyCode,
-							auxPassenger->typePassenger,
-							auxPassenger->statusFly);
+							//auxPassenger->typePassenger,
+							//auxPassenger->statusFly,
+							typePassDesc,
+							statusFlyDesc);
 					rtn = 1;
 				}
 				else{
@@ -477,7 +346,7 @@ int controller_saveAsText(char* path , LinkedList* pArrayListPassenger)
     return rtn;
 }
 
-int controller_saveAsBinary(char* path , LinkedList* pArrayListPassenger)
+/*int controller_saveAsBinary(char* path , LinkedList* pArrayListPassenger) // Sin encabezado
 {
 	int rtn = 0;
 	FILE* fileAux = NULL;
@@ -485,6 +354,29 @@ int controller_saveAsBinary(char* path , LinkedList* pArrayListPassenger)
 	if(path != NULL && pArrayListPassenger != NULL){
 		fileAux = fopen(path, "wb");
 		if(fileAux != NULL){
+			for(int i = 0; i < ll_len(pArrayListPassenger); i++){
+				auxPassenger = (sPassenger*) ll_get(pArrayListPassenger, i);
+				if(auxPassenger != NULL){
+					fwrite(auxPassenger, sizeof(sPassenger), 1, fileAux);
+				}
+			}
+			fclose(fileAux);
+			rtn = 1;
+		}
+	}
+    return rtn;
+}*/
+
+int controller_saveAsBinary(char* path , LinkedList* pArrayListPassenger) // Con encabezado
+{
+	int rtn = 0;
+	FILE* fileAux = NULL;
+	sPassenger* auxPassenger = NULL;
+	char fileHeader[65] = "id,name,lastname,price,flycode,typePassenger,statusFlight\n";
+	if(path != NULL && pArrayListPassenger != NULL){
+		fileAux = fopen(path, "wb");
+		if(fileAux != NULL){
+			fwrite(fileHeader, sizeof(fileHeader), 1, fileAux);
 			for(int i = 0; i < ll_len(pArrayListPassenger); i++){
 				auxPassenger = (sPassenger*) ll_get(pArrayListPassenger, i);
 				if(auxPassenger != NULL){
@@ -506,7 +398,7 @@ void controller_exitProgram(char *pExit)
 		scanf("%c", pExit);
 		*pExit = toupper(*pExit);
 
-		while(!(input_validateChar(*pExit, 'S', 'N'))){
+		while(!(input_validateCharOpt(*pExit, 'S', 'N'))){
             printf("Error! Confirma salida? (S/N): ");
             fflush(stdin);
             scanf("%c", pExit);
